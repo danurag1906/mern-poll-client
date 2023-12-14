@@ -7,6 +7,7 @@ import Header from "./components/Header";
 import SignIn from "./pages/Signin";
 import SignUp from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import UpdatePoll from "./pages/UpdatePoll";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/updatePoll/:pollId" element={<UpdatePoll />} />
       </Routes>
     </BrowserRouter>
   );

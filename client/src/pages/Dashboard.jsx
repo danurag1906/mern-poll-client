@@ -9,7 +9,9 @@ export default function Dashboard() {
 
   return (
     <>
-      {!currentUser && <p>Please sign in</p>}
+      {!currentUser && (
+        <p className="text-center m-10 font-bold">Please sign in</p>
+      )}
       {currentUser && currentUser.admin ? (
         <AdminDashboard />
       ) : (

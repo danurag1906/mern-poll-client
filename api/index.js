@@ -2,6 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRouter from "./routers/auth.router.js";
+import pollRouter from "./routers/poll.router.js";
+import responsesRouter from "./routers/userResponses.router.js";
 
 dotenv.config();
 
@@ -29,6 +31,8 @@ app.get("/api/auth/getUser", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/polls", pollRouter);
+app.use("/api/responses", responsesRouter);
 
 //middleware for error handling
 app.use((err, req, res, next) => {
