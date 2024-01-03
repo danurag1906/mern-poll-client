@@ -21,21 +21,30 @@ const UpdatePoll = () => {
   }, [pollId]);
 
   const fetchData = async () => {
-    const res = await fetch(`/api/polls/getPoll/${pollId}`);
+    const res = await fetch("https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/pollsById",{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+      },
+      body:JSON.stringify({pollId})//send the body as an object
+    });
     const pollData = await res.json();
-    setQuestion(pollData.question);
-    setOptions(pollData.options);
+    // console.log(JSON.parse(pollData.body));
+    const pollDataObject=JSON.parse(pollData.body);
+    setQuestion(pollDataObject.question);
+    setOptions(pollDataObject.options);
   };
 
   const handleUpdatePoll = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/polls/updatePoll/${pollId}`, {
+      const response = await fetch('https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/updatePollById', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          pollId:pollId,
           question: question,
           options: options.filter((option) => option.text.trim() !== ""),
         }),
@@ -46,7 +55,7 @@ const UpdatePoll = () => {
         setError("");
         setPostCreated(true);
         // Handle success, e.g., show a success message
-        console.log("Poll updated successfully");
+        // console.log("Poll updated successfully");
         navigate("/dashboard");
       } else {
         setLoading(false);
@@ -62,6 +71,7 @@ const UpdatePoll = () => {
   };
 
   return (
+    // <></>
     <div className="max-w-md mx-auto mt-8 p-4 bg-white rounded shadow-md">
       <h2 className="text-2xl font-semibold mb-4">Create a New Poll</h2>
       <form>

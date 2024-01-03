@@ -323,7 +323,11 @@ export default function UserVotes() {
   const [polls, setPolls] = useState([]);
   const dispatch = useDispatch();
   const [hasVoted, setHasVoted] = useState(false);
-  const userId = useSelector((state) => state.user.currentUser._id); // Assuming user ID is stored in Redux state
+  const currentUser = useSelector((state) => state.user.currentUser); // Assuming user ID is stored in Redux state
+  // console.log(currentUser.body,"currentUser");
+  const currentUserObject=JSON.parse(currentUser.body)
+  // console.log(currentUserObject.user.userId)
+  const userId=currentUserObject.user.userId;
 
   const [selectedOptions, setSelectedOptions] = useState({});
   const [existingData, setExistingData] = useState({});
@@ -335,13 +339,14 @@ export default function UserVotes() {
   const handleVote = async (pollId, optionId) => {
     try {
       const response = await fetch(
-        `/api/responses/saveUserResponse/${pollId}`,
+        'https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/saveUserResponse',
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            pollId,
             optionId,
             userId,
           }),
@@ -350,9 +355,9 @@ export default function UserVotes() {
 
       if (response.ok) {
         const data = await response.json();
-
+        console.log(data);
         if (data.alreadyVoted) {
-          console.log("User has already voted for this poll");
+          // console.log("User has already voted for this poll");
           setExistingData({ ...existingData, [pollId]: true });
           setHasVoted(true);
         } else {
@@ -375,42 +380,52 @@ export default function UserVotes() {
 
   const fetchPolls = async () => {
     try {
-      const response = await fetch("/api/polls/getPolls");
+      const response = await fetch("https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/polls");
       if (response.ok) {
         const data = await response.json();
-        console.log("data", data);
-        console.log("selected optyions", existingData);
+        // console.log("data", JSON.parse(data.body));
+        const dataObject=JSON.parse(data.body)
+        // console.log("selected optyions", existingData);
 
         const optionsArray = await Promise.all(
-          data.map(async (poll) => {
+          dataObject.map(async (poll) => {
+            const pollId=poll.pollId
             const userResponse = await fetch(
-              `/api/responses/getUserResponse/${poll._id}/${userId}`
+              'https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/getUserResponse',{
+                method:'POST',
+                headers:{
+                  'Content-Type':'application/json',
+                },
+                body:JSON.stringify({pollId,userId})
+              }
+              // `/api/responses/getUserResponse/${poll._id}/${userId}`
             );
             const userVote = await userResponse.json();
-            console.log("user responses", userVote);
+            // console.log("user responses", userVote.body);
             if (userVote && userVote.length > 0) {
-              console.log("user vote", userVote);
+              // console.log("user vote", userVote);
+              // setHasVoted(true)
               const votedOption = poll.options.find(
-                (option) => option._id === userVote[0].optionId
+                (option) => option.optionId === userVote[0].optionId
               );
 
               if (votedOption) {
-                console.log("voted option", votedOption);
-                return { [poll._id]: votedOption._id };
+                // console.log("voted option", votedOption);
+                return { [poll.pollId]: votedOption.optionId};
               } else {
-                return { [poll._id]: false };
+                return { [poll.pollId]: false };
               }
             } else {
-              console.log("else");
-              return { [poll._id]: false };
+              // console.log("else");
+              return { [poll.pollId]: false };
             }
           })
         );
 
         const initialOptions = Object.assign({}, ...optionsArray);
         setExistingData(initialOptions);
-        console.log("selected options 2 ", existingData);
-        setPolls(data);
+        // console.log("selected options 2 ", existingData);
+        setPolls(dataObject);
       } else {
         console.error("Failed to fetch polls");
       }
@@ -420,6 +435,7 @@ export default function UserVotes() {
   };
 
   return (
+    // <></>
     <div className="max-w-lg mx-auto mt-8">
       <h2 className="text-2xl font-semibold mb-4">List of Polls</h2>
       <select
@@ -428,7 +444,7 @@ export default function UserVotes() {
         onChange={(e) => setSelectedPollId(e.target.value)}
       >
         {polls.map((poll) => (
-          <option className="max-w-lg mx-auto" key={poll._id} value={poll._id}>
+          <option className="max-w-lg mx-auto" key={poll.pollId} value={poll.pollId}>
             {poll.question}
           </option>
         ))}
@@ -436,28 +452,28 @@ export default function UserVotes() {
       {selectedPollId && (
         <div className="max-w-md mx-auto mt-8 p-4 bg-white rounded shadow-md">
           <h3 className="text-xl text-center font-semibold p-2">
-            {polls.find((poll) => poll._id === selectedPollId).question}
+            {polls.find((poll) => poll.pollId === selectedPollId).question}
           </h3>
           <ul className="ml-6 list-none block">
             {polls
-              .find((poll) => poll._id === selectedPollId)
+              .find((poll) => poll.pollId === selectedPollId)
               .options.map((option) => (
-                <li key={option._id} className="flex mb-2">
+                <li key={option.optionId} className="flex mb-2">
                   <input
                     type="radio"
-                    id={`option_${option._id}`}
+                    id={`option_${option.optionId}`}
                     name={`pollOption_${selectedPollId}`}
-                    value={option._id}
-                    checked={selectedOptions[selectedPollId] === option._id}
+                    value={option.optionId}
+                    checked={selectedOptions[selectedPollId] === option.optionId}
                     onChange={() =>
                       setSelectedOptions({
                         ...selectedOptions,
-                        [selectedPollId]: option._id,
+                        [selectedPollId]: option.optionId,
                       })
                     }
                     // disabled={selectedOptions[poll._id] !== false}
                   />
-                  <label htmlFor={`option_${option._id}`} className="ml-2">
+                  <label htmlFor={`option_${option.optionId}`} className="ml-2">
                     {option.text}
                   </label>
                 </li>
@@ -476,7 +492,7 @@ export default function UserVotes() {
                 onClick={() => {
                   handleVote(selectedPollId, selectedOptions[selectedPollId]);
                 }}
-                // disabled={selectedOptions[poll._id] !== false}
+                // disabled={existingData[selectedPollId] !== false}
               >
                 Vote
               </button>

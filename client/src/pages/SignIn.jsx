@@ -36,7 +36,7 @@ export default function SignIn() {
     dispatch(signInStart());
     // console.log("inside handle submit", loading);
     try {
-      const res = await fetch("/api/auth/signin", {
+      const res = await fetch("https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/signInUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,11 +44,25 @@ export default function SignIn() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
+
+      // console.log(data);
+      // console.log(data.statusCode);
+
+      // if(data.statusCode==404){
+      //   dispatch(signInFailure("user not found"));
+      //   return;
+      // }
+
+      // if(data.statusCode==401){
+      //   dispatch(signInFailure("Wrong credentials"));
+      //   return;
+      // }
+
       if (data.success === false) {
         //if there is an error coming from the next() middleware
         // console.log("inside handle submit", data.message);
         // console.log(data.message);
-        dispatch(signInFailure(data.message));
+        dispatch(signInFailure(JSON.parse(data.body).error));
         return;
       }
       dispatch(signInSuccess(data));

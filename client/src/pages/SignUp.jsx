@@ -25,7 +25,7 @@ export default function SignUp() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch("https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/createUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

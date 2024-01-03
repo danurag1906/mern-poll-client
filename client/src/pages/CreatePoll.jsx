@@ -21,7 +21,7 @@ const CreatePoll = () => {
   const handleCreatePoll = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/polls/createPoll", {
+      const response = await fetch("https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/polls", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

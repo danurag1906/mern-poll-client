@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import PollPieChart from "./PollPieChart";
@@ -12,19 +13,27 @@ const PollList = () => {
   }, []);
 
   const handleDeletePoll = async (pollId) => {
-    // console.log("inside deletepoll");
-    const resData = await fetch(`/api/polls/deletePoll/${pollId}`, {
-      method: "DELETE",
+    const resData = await fetch('https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/deletePollById', {
+      method: "POST",
+      headers:{
+        'Content-Type':'application/json',
+      },
+      body:JSON.stringify({pollId})
     });
     fetchPolls();
   };
 
   const fetchPolls = async () => {
     try {
-      const response = await fetch("/api/polls/getPolls");
+      const response = await fetch("https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/polls");
       if (response.ok) {
         const data = await response.json();
-        setPolls(data);
+        const pollData = JSON.parse(data.body);
+
+        // Sort polls based on creation date (assuming there's a 'createdAt' property in each poll)
+        const sortedPolls = pollData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        setPolls(sortedPolls);
       } else {
         console.error("Failed to fetch polls");
       }
@@ -38,7 +47,7 @@ const PollList = () => {
       <h2 className="text-2xl font-semibold mb-4">List of Polls</h2>
       {polls.map((poll) => (
         <div
-          key={poll._id}
+          key={poll.pollId}
           className="max-w-md mx-auto mt-8 p-4 bg-white rounded shadow-md"
         >
           <h3 className="text-xl text-center font-semibold p-2">
@@ -56,7 +65,7 @@ const PollList = () => {
           </ul>
           <div className="flex justify-between p-2 m-2 gap-2">
             <Link
-              to={`/updatePoll/${poll._id}`}
+              to={`/updatePoll/${poll.pollId}`}
               className="w-full p-1 bg-green-600 text-white rounded-md"
             >
               Update
@@ -64,22 +73,21 @@ const PollList = () => {
             <button
               className="w-full p-1 bg-red-600 text-white rounded-md"
               onClick={() => {
-                handleDeletePoll(poll._id);
+                handleDeletePoll(poll.pollId);
               }}
             >
               Delete
             </button>
             <button
               onClick={() => {
-                setViewStatistics(poll._id);
+                setViewStatistics(poll.pollId);
               }}
               className="w-full p-1 bg-blue-600 text-white rounded-md"
             >
-              {" "}
               Statistics
             </button>
           </div>
-          {viewStatistics === poll._id && <PollPieChart pollId={poll._id} />}
+          {viewStatistics === poll.pollId && <PollPieChart pollId={poll.pollId} />}
         </div>
       ))}
     </div>

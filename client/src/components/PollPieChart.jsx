@@ -3,19 +3,31 @@ import { PieChart, Pie, Cell, Legend, Tooltip } from "recharts";
 
 const PollPieChart = ({ pollId }) => {
   const [chartData, setChartData] = useState([]);
+  // console.log(pollId);
 
   useEffect(() => {
     const fetchPollStatistics = async () => {
       try {
-        const response = await fetch(`/api/polls/getPollStatistics/${pollId}`);
+        const response = await fetch("https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/getPollStatisticsById",{
+          method:'POST',
+          headers:{
+            "Content-Type":"application/json",
+          },
+          body:JSON.stringify({pollId})//send the body as an object
+        })
+
+        // console.log(response);
         if (response.ok) {
           const data = await response.json();
+          const optionsArray=JSON.parse(data.body);
+          // console.log(JSON.parse(data.body));
 
           if (
-            Array.isArray(data) &&
-            data.every((stat) => typeof stat.data === "number")
+            Array.isArray(optionsArray) &&
+            optionsArray.length>0
+            // optionsArray.every((stat) => typeof stat.data === "number")
           ) {
-            setChartData(data);
+            setChartData(optionsArray);
           } else {
             console.log("Invalid data format");
           }
@@ -38,8 +50,8 @@ const PollPieChart = ({ pollId }) => {
       <PieChart width={400} height={300}>
         <Pie
           data={chartData}
-          dataKey="data"
-          nameKey="label"
+          dataKey="votes"
+          nameKey="text"
           cx="50%"
           cy="50%"
           outerRadius={80}

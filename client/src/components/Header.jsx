@@ -12,16 +12,18 @@ export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
   // console.log(currentUser);
   const dispatch = useDispatch();
+  const navigate=useNavigate()
 
   const handleSignOut = async () => {
     try {
       dispatch(signOutUserStart());
-      const res = await fetch("/api/auth/signout");
+      const res = await fetch("https://punfz49o59.execute-api.ap-south-1.amazonaws.com/Deploy/signOutLambda");
       const data = await res.json();
       if (data.success == false) {
         dispatch(signOutUserFailure());
       }
       dispatch(signOutUserSuccess());
+      navigate('/')
     } catch (error) {
       dispatch(signOutUserFailure(error.message));
     }
