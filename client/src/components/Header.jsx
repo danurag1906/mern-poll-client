@@ -10,7 +10,11 @@ import { useSelector } from "react-redux";
 
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
-  // console.log(currentUser);
+  let username;
+  if(currentUser){
+    username=JSON.parse(currentUser.body).user.username
+  }
+  // const username=JSON.parse(currentUser?.body).user.username
   const dispatch = useDispatch();
   const navigate=useNavigate()
 
@@ -58,6 +62,7 @@ export default function Header() {
               </li>
             </Link>
           )}
+          {currentUser && username &&<p className="font-bold sm:inline text-slate-700" > | {username}</p>}
         </ul>
       </div>
     </header>

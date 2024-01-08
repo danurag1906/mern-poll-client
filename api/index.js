@@ -9,7 +9,7 @@ dotenv.config();
 
 mongoose
   .connect(
-    "mongodb+srv://mern-poll:mern-poll@cluster0.2drg2p9.mongodb.net/?retryWrites=true&w=majority"
+    process.env.MONGO_URL
   )
   .then(() => {
     console.log("connected to db!");
